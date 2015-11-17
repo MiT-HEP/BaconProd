@@ -1,18 +1,13 @@
 # BaconProd
-from ksung25, csa14 version
-
+W/Z analysis: Bacon production. Runs on AOD
 
 ##To include custom MVA MET
-
-
   git-cms-merge-topic sabrandt:MVAForBaconv2
   
 ##To include PUPPI
   From instructions on PUPPI Twiki (https://twiki.cern.ch/twiki/bin/viewauth/CMS/PUPPI#Recipe_for_74X_developing)
   
-  
   git cms-addpkg CommonTools/PileupAlgos
-  
   
   git cms-merge-topic nhanvtran:puppi-etadep-741-v1
   currently we are keeping puppi version in as a placeholder
