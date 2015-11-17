@@ -7,9 +7,10 @@ corrPfMetType1 = cms.EDProducer(
     src = cms.InputTag("ak4PFJetsCHS"),
     offsetCorrLabel = cms.InputTag("ak4PFCHSL1FastjetCorrector"),
     jetCorrLabel = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"), # NOTE: use "ak4PFL1FastL2L3Corrector" for MC / "ak4PFL1FastL2L3ResidualCorrector" for Data
-    #jetCorrEtaMax = cms.double(9.9),
+    #jetCorrEtaMax = cms.double(9.9)
+    jetCorrLabelRes =  cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"),
     jetCorrEtaMax = cms.double(9.9),
-    type1JetPtThreshold = cms.double(10.0),
+    type1JetPtThreshold = cms.double(15.0),
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
@@ -17,9 +18,8 @@ corrPfMetType1 = cms.EDProducer(
 )
 
 pfMetT1 = cms.EDProducer(
-    "AddCorrectionsToPFMET",
-    src = cms.InputTag('pfMet30'),
-    jetCorrEtaMax = cms.double(3.0),
+    "CorrectedPFMETProducer",
+    src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType1', 'type1')
     ),
@@ -29,6 +29,7 @@ pfMetT1 = cms.EDProducer(
 # define sequence to run all modules
 producePFMETCorrections = cms.Sequence(
     ak4PFCHSL1FastL2L3CorrectorChain
+    * ak4PFCHSL1FastL2L3ResidualCorrectorChain
     * corrPfMetType1
     * pfMetT1
 )
@@ -38,6 +39,7 @@ pfJetMETcorrPuppi = corrPfMetType1.clone(
     src = 'ak4PFJetsPuppi',
     jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector',
     offsetCorrLabel = 'ak4PuppiL1FastjetCorrector',
+    jetCorrLabelRes = 'ak4PuppiL1FastL2L3ResidualCorrector',
     type1JetPtThreshold = cms.double(20)
     )
 

@@ -231,12 +231,12 @@ void FillerEventInfo::fill(TEventInfo *evtInfo,
     //    evtInfo->pfMETCCov11 = inPFMETC.getSignificanceMatrix()(1,1);
     
     //  =============== MVA MET ======================
-    edm::Handle<reco::PFMETCollection> hMVAMETProduct;
-    iEvent.getByLabel(fMVAMETName,hMVAMETProduct);
-    assert(hMVAMETProduct.isValid());
-    const reco::PFMET &inMVAMET = hMVAMETProduct.product()->front();
-    evtInfo->mvaMET      = inMVAMET.pt();
-    evtInfo->mvaMETphi   = inMVAMET.phi();
+    //edm::Handle<reco::PFMETCollection> hMVAMETProduct;
+    //iEvent.getByLabel(fMVAMETName,hMVAMETProduct);
+    //assert(hMVAMETProduct.isValid());
+    //const reco::PFMET &inMVAMET = hMVAMETProduct.product()->front();
+    evtInfo->mvaMET      = 0.0;//inMVAMET.pt();
+    evtInfo->mvaMETphi   = 0.0;//inMVAMET.phi();
     //    evtInfo->mvaMETCov00 = inMVAMET.getSignificanceMatrix()(0,0);
     //    evtInfo->mvaMETCov01 = inMVAMET.getSignificanceMatrix()(0,1);
     //    evtInfo->mvaMETCov11 = inMVAMET.getSignificanceMatrix()(1,1);

@@ -7,15 +7,15 @@ puppijec =  cms.ESSource("PoolDBESSource",
                          timetype = cms.string('runnumber'),
                          toGet = cms.VPSet(
                            cms.PSet(record  = cms.string('JetCorrectionsRecord'),
-                                    tag     = cms.string('JetCorrectorParametersCollection_Summer15_50nsV4_DATA_AK4PFPuppi'),
+                                    tag     = cms.string('JetCorrectorParametersCollection_Summer15_25nsV6_DATA_AK4PFPuppi'),
                                     label   = cms.untracked.string('AK4PFPuppi')
                                     ),
                            cms.PSet(record  = cms.string('JetCorrectionsRecord'),
-                                    tag     = cms.string('JetCorrectorParametersCollection_Summer15_50nsV4_DATA_AK4PF'),
+                                    tag     = cms.string('JetCorrectorParametersCollection_Summer15_25nsV6_DATA_AK4PF'),
                                     label   = cms.untracked.string('AK4PF')
                                     )
                            ),
-                         connect = cms.string('sqlite_file:Summer15_50nsV4_DATA.db'),
+                         connect = cms.string('sqlite_file:Summer15_25nsV6_DATA.db'),
                          )                                
 puppijec_es_prefer = cms.ESPrefer("PoolDBESSource",'puppijec')
 

@@ -21,7 +21,7 @@ process.GlobalTag.globaltag = 'MCRUN2_74_V9A::All'
 #process.load('BaconProd/Ntupler/myJetExtras04_cff')    # include gen jets and b-tagging
 
 process.load('BaconProd/Ntupler/myMETFilters_cff')        # apply MET filters set to tagging mode
-process.load('RecoMET.METPUSubtraction.mvaPFMET30_cff')     # MVA MET from Stephanie
+#process.load('RecoMET.METPUSubtraction.mvaPFMET30_cff')     # MVA MET from Stephanie
 process.load("BaconProd/Ntupler/myPFMETCorrections_cff")  # PF MET corrections
 #process.pfJetMETcorr.jetCorrLabel = cms.string("ak5PFL1FastL2L3")
 
@@ -33,22 +33,18 @@ process.load('HLTrigger/HLTfilters/hltHighLevel_cfi')
 process.hltHighLevel.throw = cms.bool(False)
 process.hltHighLevel.HLTPaths = cms.vstring()
 
-process.pfMVAMEt.isTestSample = cms.bool(False)
-
+#process.pfMVAMEt.isTestSample = cms.bool(False)
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoMET.METProducers.PFMET_cfi import pfMet
-process.packedPFCandidates30 = cms.EDFilter("CandPtrSelector",
-                                            src = cms.InputTag("particleFlow"),
-                                            cut = cms.string("abs(eta) < 3.0"))
-process.pfMet30                      = pfMet.clone();
-process.pfMet30.src                  = cms.InputTag('packedPFCandidates30')
+
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 from CondCore.DBCommon.CondDBSetup_cfi import *
 ## load Puppi stuff
 #PUPPI JEC
 process.load('CommonTools/PileupAlgos/Puppi_cff') 
 process.load('BaconProd/Ntupler/myPUPPICorrections_cff')
-process.pfCandNoLep = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates30"), cut = cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
-process.pfCandLep = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates30"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
+process.pfCandNoLep = cms.EDFilter("CandPtrSelector", src = cms.InputTag("particleFlow"), cut = cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
+process.pfCandLep = cms.EDFilter("CandPtrSelector", src = cms.InputTag("particleFlow"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
 process.puppinolep = process.puppi.clone()
 process.puppinolep.candName = 'pfCandNoLep'
 process.puppimetinput = cms.EDProducer("CandViewMerger",
@@ -60,7 +56,7 @@ process.pfMetPuppi.src = cms.InputTag('puppimetinput')
 process.pfMetPuppi.calculateSignificance = False
 process.puppi30 = process.puppi.clone()
 process.puppi30.candName = 'packedPFCandidates30'
-process.ak4PFJetsPuppi             = process.ak4PFJets.clone(src = cms.InputTag("puppi30"))
+process.ak4PFJetsPuppi   = ak4PFJets.clone(src = cms.InputTag("puppimetinput"))
 
 hlt_file = open(cmssw_base + "/src/" + hlt_filename, "r")
 for line in hlt_file.readlines():
@@ -71,7 +67,7 @@ for line in hlt_file.readlines():
 
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
     process.source = cms.Source("PoolSource",
-                                  fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v2/00000/0AFC520A-8607-E511-B099-001517FB20EC.root'
+                                  fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/50000/0CF36765-E836-E511-9684-0002C90F8088.root'
                                   )
                                 )
     process.source.inputCommands = cms.untracked.vstring("keep *",
@@ -97,7 +93,7 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
     edmPFCandName        = cms.untracked.string('particleFlow'),
     edmPileupInfoName    = cms.untracked.string('addPileupInfo'),
     edmBeamspotName      = cms.untracked.string('offlineBeamSpot'),
-    edmPFMETName         = cms.untracked.string('pfMet30'),
+    edmPFMETName         = cms.untracked.string('pfMet'),
     #edmPFMETCorrName     = cms.untracked.string('pfType1CorrectedMet'),
     edmPFMETCorrName     = cms.untracked.string('pfMetT1'),
     edmMVAMETName        = cms.untracked.string('pfMVAMEt30'),
@@ -127,7 +123,7 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                  
                                      Electron = cms.untracked.PSet(
     isActive                  = cms.untracked.bool(True),
-    minPt                     = cms.untracked.double(7),
+    minPt                     = cms.untracked.double(15),
     edmName                   = cms.untracked.string('gedGsfElectrons'),
     edmPFCandName             = cms.untracked.string('particleFlow'),
     edmTrackName              = cms.untracked.string('generalTracks'),
@@ -138,13 +134,13 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                  
                                  Muon = cms.untracked.PSet(
     isActive      = cms.untracked.bool(True),
-    minPt         = cms.untracked.double(3),
+    minPt         = cms.untracked.double(10),
     edmName       = cms.untracked.string('muons'),
     edmPFCandName = cms.untracked.string('particleFlow'),
     
     # save general tracker tracks in our muon collection (used in tag-and-probe for muons)
-    doSaveTracks = cms.untracked.bool(False),
-    minTrackPt   = cms.untracked.double(20),
+    doSaveTracks = cms.untracked.bool(True),
+    minTrackPt   = cms.untracked.double(10),
     edmTrackName = cms.untracked.string('generalTracks')    
     ),
                                      
@@ -172,7 +168,7 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                  #  ),
                                  Jet = cms.untracked.PSet(
         isActive             = cms.untracked.bool(True),
-        minPt                = cms.untracked.double(10),
+        minPt                = cms.untracked.double(20),
         #    doComputeFullJetInfo = cms.untracked.bool(True),
         #    doGenJet             = ( cms.untracked.bool(False) if is_data_flag else cms.untracked.bool(True) ),
         #    
@@ -187,9 +183,9 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                            'dummy.txt',
                                            'dummy.txt')
                      if is_data_flag else 
-                     cms.untracked.vstring('BaconProd/Utils/data/Summer15_50nsV4_MC_L1FastJet_AK4PFchs.txt',
-                                           'BaconProd/Utils/data/Summer15_50nsV4_MC_L1FastJet_AK4PFchs.txt',
-                                           'BaconProd/Utils/data/Summer15_50nsV4_MC_L1FastJet_AK4PFchs.txt')
+                     cms.untracked.vstring('BaconProd/Utils/data/Summer15_25nsV6_MC_L1FastJet_AK4PFchs.txt',
+                                           'BaconProd/Utils/data/Summer15_25nsV6_MC_L2Relative_AK4PFchs.txt',
+                                           'BaconProd/Utils/data/Summer15_25nsV6_MC_L3Absolute_AK4PFchs.txt')
                      ),
         jecUncFiles = ( cms.untracked.vstring('dummy.txt')
                         if is_data_flag else
@@ -225,11 +221,8 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
 
 process.baconSequence = cms.Sequence(#process.PFBRECO*
   process.metFilters*
-  process.packedPFCandidates30*
-  process.pfMet30*
-  process.pfMVAMEt30Sequence* #MVA ME
+  #process.pfMVAMEt30Sequence* #MVA ME
   process.producePFMETCorrections*
-  process.puppi30* #  puppi
   process.pfCandNoLep*
   process.pfCandLep*
   process.puppinolep*

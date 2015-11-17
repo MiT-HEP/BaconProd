@@ -32,25 +32,16 @@ void FillerGenInfo::fill(TGenEventInfo *genEvtInfo, TClonesArray *array,const ed
   edm::Handle<GenEventInfoProduct> hGenEvtInfoProduct;
   iEvent.getByLabel(fGenEvtInfoName,hGenEvtInfoProduct);
   assert(hGenEvtInfoProduct.isValid());
-  /*
-  const gen::PdfInfo *pdfInfo = (hGenEvtInfoProduct->hasPDF()) ? hGenEvtInfoProduct->pdf() : 0;
-  genEvtInfo->id_1     = (hGenEvtInfoProduct->hasPDF()) ? pdfInfo->id.first    : 0;
-  genEvtInfo->id_2     = (hGenEvtInfoProduct->hasPDF()) ? pdfInfo->id.second   : 0;
-  genEvtInfo->x_1      = (hGenEvtInfoProduct->hasPDF()) ? pdfInfo->x.first     : 0;
-  genEvtInfo->x_2      = (hGenEvtInfoProduct->hasPDF()) ? pdfInfo->x.second    : 0;
-  genEvtInfo->weight   = hGenEvtInfoProduct->weight();
-  genEvtInfo->scalePDF = hGenEvtInfoProduct->qScale();
-  */
   
-  //edm::Handle<LHEEventProduct> hLHEEventProduct;
-  //iEvent.getByLabel(fLHEEventName,hLHEEventProduct);
-  //assert(hLHEEventProduct.isValid());
-  //genEvtInfo->lheweight.clear();
-  //for(int i = 1; i<=110; i++)
-  //  { 
+  edm::Handle<LHEEventProduct> hLHEEventProduct;
+  iEvent.getByLabel(fLHEEventName,hLHEEventProduct);
+  assert(hLHEEventProduct.isValid());
+  genEvtInfo->lheweight.clear();
+  for(int i = 1; i<=111; i++)
+    { 
       //std::cout << (hLHEEventProduct->weights()[i].wgt/hLHEEventProduct->originalXWGTUP()) << std::endl;
-  //   genEvtInfo->lheweight.push_back(hLHEEventProduct->weights()[i].wgt/hLHEEventProduct->originalXWGTUP()); 
-  //  }
+      genEvtInfo->lheweight.push_back(hLHEEventProduct->weights()[i].wgt/hLHEEventProduct->originalXWGTUP()); 
+    }
   
 
   const gen::PdfInfo *pdfInfo = ( hGenEvtInfoProduct->pdf()!=0) ?  hGenEvtInfoProduct->pdf() : 0;
