@@ -9,10 +9,16 @@ puppijec =  cms.ESSource("PoolDBESSource",
                            cms.PSet(record  = cms.string('JetCorrectionsRecord'),
                                     tag     = cms.string('JetCorrectorParametersCollection_Summer15_50nsV4_DATA_AK4PFPuppi'),
                                     label   = cms.untracked.string('AK4PFPuppi')
+                                    ),
+                           cms.PSet(record  = cms.string('JetCorrectionsRecord'),
+                                    tag     = cms.string('JetCorrectorParametersCollection_Summer15_50nsV4_DATA_AK4PF'),
+                                    label   = cms.untracked.string('AK4PF')
                                     )
                            ),
                          connect = cms.string('sqlite_file:Summer15_50nsV4_DATA.db'),
                          )                                
+puppijec_es_prefer = cms.ESPrefer("PoolDBESSource",'puppijec')
+
 #Puppi Sequence AK4
 ak4PuppiL1FastjetCorrector  = ak4PFCHSL1FastjetCorrector.clone (algorithm   = cms.string('AK4PFPuppi'))
 ak4PuppiL2RelativeCorrector = ak4PFCHSL2RelativeCorrector.clone(algorithm   = cms.string('AK4PFPuppi'))

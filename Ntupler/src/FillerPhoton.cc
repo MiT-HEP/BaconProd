@@ -63,10 +63,10 @@ void FillerPhoton::fill(TClonesArray *array,
 
   
   // Get photon collection
-  edm::Handle<reco::PhotonCollection> hPhotonProduct;
-  iEvent.getByLabel(fPhotonName,hPhotonProduct);
-  assert(hPhotonProduct.isValid());
-  const reco::PhotonCollection *photonCol = hPhotonProduct.product();
+  //edm::Handle<reco::PhotonCollection> hPhotonProduct;
+  //iEvent.getByLabel(fPhotonName,hPhotonProduct);
+  //assert(hPhotonProduct.isValid());
+  //const reco::PhotonCollection *photonCol = hPhotonProduct.product();
 /*
   // Get PF-candidates collection
   edm::Handle<reco::PFCandidateCollection> hPFCandProduct;
@@ -125,6 +125,26 @@ void FillerPhoton::fill(TClonesArray *array,
   const double pfMinPt  = 2;
   const double pfMaxEta = 2.4;
 */  
+  int scIndex = -1;
+  for(reco::SuperClusterCollection::const_iterator itSC = scCol->begin(); itSC!=scCol->end(); ++itSC) {
+    scIndex++;
+    if((itSC->energy())*(itSC->position().Rho())/(itSC->position().R()) < fMinPt) continue;
+    
+    // construct object and place in array
+    TClonesArray &rPhotonArr = *array;
+    assert(rPhotonArr.GetEntries() < rPhotonArr.GetSize());
+    const int index = rPhotonArr.GetEntries();
+    new(rPhotonArr[index]) baconhep::TPhoton();
+    baconhep::TPhoton *pPhoton = (baconhep::TPhoton*)rPhotonArr[index];
+    
+    pPhoton->pt  = (itSC->energy())*(itSC->position().Rho())/(itSC->position().R());
+    pPhoton->eta = itSC->eta();
+    pPhoton->phi = itSC->phi();
+    pPhoton->scEt  =(itSC->energy())*(itSC->position().Rho())/(itSC->position().R());
+    pPhoton->scID = scIndex;
+  }
+}
+/*
   for(reco::PhotonCollection::const_iterator itPho = photonCol->begin(); itPho!=photonCol->end(); ++itPho) {
     
     // Photon cuts
@@ -192,7 +212,7 @@ void FillerPhoton::fill(TClonesArray *array,
     if(itPho->isEEDeeGap())  pPhoton->fiducialBits |= kIsEEDeeGap;
     if(itPho->isEERingGap()) pPhoton->fiducialBits |= kIsEERingGap;
     
-/** Check: seems like 'gedPhotons' are always PF-photons and never EG-photons... **/
+    //Check: seems like 'gedPhotons' are always PF-photons and never EG-photons... 
     pPhoton->typeBits=0;
     if(itPho->isStandardPhoton()) pPhoton->typeBits |= baconhep::kEGamma;
     if(itPho->isPFlowPhoton())    pPhoton->typeBits |= baconhep::kPFPhoton;
@@ -218,7 +238,6 @@ void FillerPhoton::fill(TClonesArray *array,
     pPhoton->hltMatchBits = TriggerTools::matchHLT(pPhoton->eta, pPhoton->phi, triggerRecords, triggerEvent);
   }
 }
-/*
 //--------------------------------------------------------------------------------------------------
 void FillerPhoton::computeVtxIso(const reco::Photon &photon,
 				 const std::vector<reco::PFCandidate>        &pf,

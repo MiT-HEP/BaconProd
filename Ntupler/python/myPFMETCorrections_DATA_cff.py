@@ -18,7 +18,8 @@ corrPfMetType1 = cms.EDProducer(
 
 pfMetT1 = cms.EDProducer(
     "AddCorrectionsToPFMET",
-    src = cms.InputTag('pfMet'),
+    src = cms.InputTag('pfMet30'),
+    jetCorrEtaMax = cms.double(3.0),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType1', 'type1')
     ),
