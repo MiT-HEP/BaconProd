@@ -7,13 +7,13 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-#process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
+#process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 process.load('TrackingTools/TransientTrack/TransientTrackBuilder_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.GlobalTag.globaltag = 'GR_P_V56::All'
+process.GlobalTag.globaltag = '76X_dataRun2_v15'
 
 #process.load("RecoTauTag/Configuration/RecoPFTauTag_cff")
 
@@ -68,7 +68,7 @@ for line in hlt_file.readlines():
     
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
     process.source = cms.Source("PoolSource",
-                                fileNames = cms.untracked.vstring('/store/data/Run2015B/SingleMuon/AOD/PromptReco-v1/000/252/126/00000/E6361784-5231-E511-A760-02163E0133FF.root')
+                                fileNames = cms.untracked.vstring('/store/data/Run2015D/SingleMuon/AOD/16Dec2015-v1/10000/00E41E14-6DA8-E511-A89A-0025905A60C6.root')
                                 )
     process.source.inputCommands = cms.untracked.vstring("keep *",
                                                          "drop *_MEtoEDMConverter_*_*")

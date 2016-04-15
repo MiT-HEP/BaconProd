@@ -1,7 +1,4 @@
 # BaconProd
-W/Z analysis: Bacon production. Runs on AOD. Current setup uses CMSSW_7_4_14.
+W/Z analysis: Bacon production. Runs on AOD. Current setup uses CMSSW_7_6_3_patch2.
 
-##To include custom MVA MET
-  git-cms-merge-topic sabrandt:MVAForBaconv2
-
-Use config file crab/makingBaconPuppiMVAMets_MC.py to include MVA and PUPPI calculations
+Use config file crab/makingBaconPuppiMVAMets_MC.py to run

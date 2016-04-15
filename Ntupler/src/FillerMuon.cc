@@ -21,14 +21,18 @@
 using namespace baconhep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMuon::FillerMuon(const edm::ParameterSet &iConfig):
+FillerMuon::FillerMuon(const edm::ParameterSet &iConfig,edm::ConsumesCollector && iC):
   fMinPt     (iConfig.getUntrackedParameter<double>("minPt",0)),
   fMuonName  (iConfig.getUntrackedParameter<std::string>("edmName","muons")),
   fPFCandName(iConfig.getUntrackedParameter<std::string>("edmPFCandName","particleFlow")),
   fTrackName (iConfig.getUntrackedParameter<std::string>("edmTrackName","generalTracks")),
   fSaveTracks(iConfig.getUntrackedParameter<bool>("doSaveTracks",false)),
   fTrackMinPt(iConfig.getUntrackedParameter<double>("minTrackPt",20))
-{}
+{
+  fMuonName_token = iC.consumes<reco::MuonCollection>(fMuonName);
+  fPFCandName_token = iC.consumes<reco::PFCandidateCollection>(fPFCandName);
+  fTrackName_token = iC.consumes<reco::TrackCollection>(fTrackName);
+}
 
 //--------------------------------------------------------------------------------------------------
 FillerMuon::~FillerMuon(){}
@@ -43,19 +47,19 @@ void FillerMuon::fill(TClonesArray *array,
   
   // Get muon collection
   edm::Handle<reco::MuonCollection> hMuonProduct;
-  iEvent.getByLabel(fMuonName,hMuonProduct);
+  iEvent.getByToken(fMuonName_token,hMuonProduct);
   assert(hMuonProduct.isValid());
   const reco::MuonCollection *muonCol = hMuonProduct.product();
   
   // Get PF-candidates collection
   edm::Handle<reco::PFCandidateCollection> hPFCandProduct;
-  iEvent.getByLabel(fPFCandName,hPFCandProduct);
+  iEvent.getByToken(fPFCandName_token,hPFCandProduct);
   assert(hPFCandProduct.isValid());
   const reco::PFCandidateCollection *pfCandCol = hPFCandProduct.product();
   
   // Get track collection
   edm::Handle<reco::TrackCollection> hTrackProduct;
-  iEvent.getByLabel(fTrackName,hTrackProduct);
+  iEvent.getByToken(fTrackName_token,hTrackProduct);
   assert(hTrackProduct.isValid());
   const reco::TrackCollection *trackCol = hTrackProduct.product();
   

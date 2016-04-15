@@ -29,7 +29,7 @@ using namespace baconhep;
 
 
 //--------------------------------------------------------------------------------------------------
-FillerJet::FillerJet(const edm::ParameterSet &iConfig):
+FillerJet::FillerJet(const edm::ParameterSet &iConfig,edm::ConsumesCollector && iC):
   fMinPt              (iConfig.getUntrackedParameter<double>("minPt",20)),
   fUseGen             (iConfig.getUntrackedParameter<bool>("doGenJet",true)),
   fPVName             (iConfig.getUntrackedParameter<std::string>("edmPVName","offlinePrimaryVertices")),
@@ -69,6 +69,10 @@ FillerJet::FillerJet(const edm::ParameterSet &iConfig):
   fJetCorr            (0),
   fJetUnc             (0)
 {
+  rhoTag_token = iC.consumes<double>(fRhoName);
+  fJetName_token = iC.consumes<reco::PFJetCollection>(fJetName);
+  //fJetFlavorName_token = iC.consumes<reco::JetFlavourMatchingCollection>(fJetFlavorName);
+  //fJetFlavorPhysName_token = iC.consumes<reco::JetFlavourMatchingCollection>(fJetFlavorPhysName);
 //  fCAJetDef = new fastjet::JetDefinition(fastjet::cambridge_algorithm, fConeSize);
 
 //  int activeAreaRepeats = 1;
@@ -184,7 +188,7 @@ void FillerJet::fill(TClonesArray *array, //TClonesArray *iExtraArray,TClonesArr
   
   // Get jet collection
   edm::Handle<reco::PFJetCollection> hJetProduct;
-  iEvent.getByLabel(fJetName,hJetProduct);
+  iEvent.getByToken(fJetName_token,hJetProduct);
   assert(hJetProduct.isValid());
   const reco::PFJetCollection *jetCol = hJetProduct.product();
   
@@ -198,10 +202,10 @@ void FillerJet::fill(TClonesArray *array, //TClonesArray *iExtraArray,TClonesArr
 //  }
 
   // Get Jet Flavor Match
-  edm::Handle<reco::JetFlavourMatchingCollection> jetFlavourMatch;
-  if(fUseGen) iEvent.getByLabel(fJetFlavorName, jetFlavourMatch);
-  edm::Handle<reco::JetFlavourMatchingCollection> jetFlavourMatchPhys;
-  if(fUseGen) iEvent.getByLabel(fJetFlavorPhysName, jetFlavourMatchPhys);
+  //edm::Handle<reco::JetFlavourMatchingCollection> jetFlavourMatch;
+  //if(fUseGen) iEvent.getByToken(fJetFlavorName_token, jetFlavourMatch);
+  //edm::Handle<reco::JetFlavourMatchingCollection> jetFlavourMatchPhys;
+  //if(fUseGen) iEvent.getByToken(fJetFlavorPhysName_token, jetFlavourMatchPhys);
 
   // Get pruned jet collection
 //  edm::Handle<reco::BasicJetCollection> hPruneJetProduct;
@@ -225,13 +229,13 @@ void FillerJet::fill(TClonesArray *array, //TClonesArray *iExtraArray,TClonesArr
   // Get event energy density for jet correction
   edm::Handle<double> hRho;
   edm::InputTag rhoTag(fRhoName,"");
-  iEvent.getByLabel(rhoTag,hRho);
+  iEvent.getByToken(rhoTag_token,hRho);
   assert(hRho.isValid()); 
  
   // Get b-jet tagger
-  edm::Handle<reco::JetTagCollection> hCSVbtags;
-  iEvent.getByLabel(fCSVbtagName, hCSVbtags);
-  assert(hCSVbtags.isValid());
+  //edm::Handle<reco::JetTagCollection> hCSVbtags;
+  //iEvent.getByToken(fCSVbtagName_token, hCSVbtags);
+  //assert(hCSVbtags.isValid());
 
   // Get b sub-jets 
 //  edm::Handle<reco::JetTagCollection> hCSVbtagsSubJets;
@@ -319,7 +323,7 @@ void FillerJet::fill(TClonesArray *array, //TClonesArray *iExtraArray,TClonesArr
     //==============================
     reco::PFJetRef jetRef(hJetProduct, itJet - jetCol->begin());
     reco::JetBaseRef jetBaseRef(jetRef);
-    pJet->csv        = (*(hCSVbtags.product())) [jetBaseRef];
+    pJet->csv        = 0; //(*(hCSVbtags.product())) [jetBaseRef];
 //    pJet->qgid       = (*(hQGLikelihood.product())) [jetBaseRef];
 //    pJet->tau1       = (*(hTau1.product())) [jetBaseRef];
 //    pJet->tau2       = (*(hTau2.product())) [jetBaseRef];

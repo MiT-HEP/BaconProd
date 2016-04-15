@@ -18,7 +18,7 @@
 using namespace baconhep;
 
 //--------------------------------------------------------------------------------------------------
-FillerEventInfo::FillerEventInfo(const edm::ParameterSet &iConfig):
+FillerEventInfo::FillerEventInfo(const edm::ParameterSet &iConfig,edm::ConsumesCollector && iC):
   fPFCandName (iConfig.getUntrackedParameter<std::string>("edmPFCandName","particleFlow")),
   fPUInfoName (iConfig.getUntrackedParameter<std::string>("edmPileupInfoName","addPileupInfo")),
   fBSName     (iConfig.getUntrackedParameter<std::string>("edmBeamspotName","offlineBeamSpot")),
@@ -33,7 +33,16 @@ FillerEventInfo::FillerEventInfo(const edm::ParameterSet &iConfig):
   fFillMET    (iConfig.getUntrackedParameter<bool>("doFillMET",true)),
   fFillMETFilters(iConfig.getUntrackedParameter<bool>("doFillMETFilters",true))//,
 //  fAddSusyGen (iConfig.getUntrackedParameter<bool>("addSusyGen",false))
-{}
+{
+  fPUInfoName_token = iC.consumes< std::vector<PileupSummaryInfo> >(fPUInfoName);
+  fBSName_token = iC.consumes<reco::BeamSpot>(fBSName);
+  fPFMETName_token = iC.consumes<reco::PFMETCollection>(fPFMETName);
+  fPFMETCName_token = iC.consumes<reco::PFMETCollection>(fPFMETCName);
+  fPuppETName_token = iC.consumes<reco::PFMETCollection>(fPuppETName);
+  fCHMETName_token = iC.consumes<reco::PFMETCollection>(fCHMETName);
+  rhoIsoTag_token = iC.consumes<double>(fRhoIsoName);
+  rhoJetTag_token = iC.consumes<double>(fRhoJetName);
+}
 
 //--------------------------------------------------------------------------------------------------
 FillerEventInfo::~FillerEventInfo(){}
@@ -56,7 +65,7 @@ void FillerEventInfo::fill(TEventInfo *evtInfo,
   //==============================
   if(!iEvent.isRealData()) {
     edm::Handle< std::vector<PileupSummaryInfo> > hPileupInfoProduct;
-    iEvent.getByLabel(fPUInfoName,hPileupInfoProduct);
+    iEvent.getByToken(fPUInfoName_token,hPileupInfoProduct);
     assert(hPileupInfoProduct.isValid());
     const std::vector<PileupSummaryInfo> *inPUInfos = hPileupInfoProduct.product();
     for (std::vector<PileupSummaryInfo>::const_iterator itPUInfo = inPUInfos->begin(); itPUInfo!=inPUInfos->end(); ++itPUInfo) {
@@ -87,7 +96,7 @@ void FillerEventInfo::fill(TEventInfo *evtInfo,
   // beam spot info
   //==============================
   edm::Handle<reco::BeamSpot> hBeamSpotProduct;
-  iEvent.getByLabel(fBSName,hBeamSpotProduct);
+  iEvent.getByToken(fBSName_token,hBeamSpotProduct);
   assert(hBeamSpotProduct.isValid());
   const reco::BeamSpot *bs = hBeamSpotProduct.product();
   evtInfo->bsx = bs->x0();
@@ -210,7 +219,7 @@ void FillerEventInfo::fill(TEventInfo *evtInfo,
 
     // PF MET
     edm::Handle<reco::PFMETCollection> hPFMETProduct;
-    iEvent.getByLabel(fPFMETName,hPFMETProduct);
+    iEvent.getByToken(fPFMETName_token,hPFMETProduct);
     assert(hPFMETProduct.isValid());
     const reco::PFMET &inPFMET = hPFMETProduct.product()->front();
     evtInfo->pfMET      = inPFMET.pt();
@@ -221,7 +230,7 @@ void FillerEventInfo::fill(TEventInfo *evtInfo,
 
     // Corrected PF MET
     edm::Handle<reco::PFMETCollection> hPFMETCProduct;
-    iEvent.getByLabel(fPFMETCName,hPFMETCProduct);
+    iEvent.getByToken(fPFMETCName_token,hPFMETCProduct);
     assert(hPFMETCProduct.isValid());
     const reco::PFMET &inPFMETC = hPFMETCProduct.product()->front();
     evtInfo->pfMETC      = inPFMETC.pt();
@@ -267,7 +276,7 @@ void FillerEventInfo::fill(TEventInfo *evtInfo,
    
     // ============ Puppi Party ===================
     edm::Handle<reco::PFMETCollection> hPuppET;
-    iEvent.getByLabel(fPuppETName,hPuppET);
+    iEvent.getByToken(fPuppETName_token,hPuppET);
     assert(hPuppET.isValid());
     const reco::PFMET &inPuppET = hPuppET.product()->front();
     evtInfo->puppET      = inPuppET.pt();
@@ -279,7 +288,7 @@ void FillerEventInfo::fill(TEventInfo *evtInfo,
   
     // Track MET
     edm::Handle<reco::PFMETCollection> hPFChMETProduct;
-    iEvent.getByLabel(fCHMETName,hPFChMETProduct);
+    iEvent.getByToken(fCHMETName_token,hPFChMETProduct);
     assert(hPFChMETProduct.isValid());
     const reco::PFMET &inPFChMET = hPFChMETProduct.product()->front();
     evtInfo->trkMET      = inPFChMET.pt();
@@ -299,14 +308,14 @@ void FillerEventInfo::fill(TEventInfo *evtInfo,
   // Rho for isolation correction
   edm::Handle<double> hRhoIso;
   edm::InputTag rhoIsoTag(fRhoIsoName,"");
-  iEvent.getByLabel(rhoIsoTag,hRhoIso);
+  iEvent.getByToken(rhoIsoTag_token,hRhoIso);
   assert(hRhoIso.isValid());
   evtInfo->rhoIso = *hRhoIso;
   
   // Rho for jet energy correction
   edm::Handle<double> hRhoJet;
   edm::InputTag rhoJetTag(fRhoJetName,"");
-  iEvent.getByLabel(rhoJetTag,hRhoJet);
+  iEvent.getByToken(rhoJetTag_token,hRhoJet);
   assert(hRhoJet.isValid());
   evtInfo->rhoJet = *hRhoJet;
 

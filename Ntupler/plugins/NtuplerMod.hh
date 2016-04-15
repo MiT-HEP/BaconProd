@@ -5,6 +5,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <string>                                        // string class
 
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 // forward class declarations
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -66,6 +70,10 @@ class NtuplerMod : public edm::EDAnalyzer {
     edm::ParameterSetID fTriggerNamesID;
     edm::InputTag	fHLTTag;
     edm::InputTag       fHLTObjTag;
+    edm::EDGetTokenT<edm::TriggerResults> fHLTTag_token;
+    edm::EDGetTokenT<trigger::TriggerEvent> fHLTObjTag_token;
+    edm::EDGetTokenT<reco::PFCandidateCollection> fPFCandName_token;
+    edm::EDGetTokenT<reco::VertexCollection> fPVName_token;
     std::string         fHLTFile;
 
     std::vector<const reco::PFCandidate*> fPFNoPU;

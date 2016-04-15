@@ -12,12 +12,16 @@
 using namespace baconhep;
 
 //--------------------------------------------------------------------------------------------------
-FillerGenInfo::FillerGenInfo(const edm::ParameterSet &iConfig):
+FillerGenInfo::FillerGenInfo(const edm::ParameterSet &iConfig,edm::ConsumesCollector && iC):
   fGenEvtInfoName(iConfig.getUntrackedParameter<std::string>("edmGenEventInfoName","generator")),
   fLHEEventName  (iConfig.getUntrackedParameter<std::string>("edLHEEventName","externalLHEProducer")),
   fGenParName    (iConfig.getUntrackedParameter<std::string>("edmGenParticlesName","genParticles")),
   fFillAll       (iConfig.getUntrackedParameter<bool>("fillAllGen",true))
-{}
+{
+  fGenEvtInfoName_token = iC.consumes<GenEventInfoProduct>(fGenEvtInfoName);
+  fLHEEventName_token = iC.consumes<LHEEventProduct>(fLHEEventName);
+  fGenParName_token = iC.consumes<reco::GenParticleCollection>(fGenParName);
+}
 
 //--------------------------------------------------------------------------------------------------
 FillerGenInfo::~FillerGenInfo(){}
@@ -30,11 +34,11 @@ void FillerGenInfo::fill(TGenEventInfo *genEvtInfo, TClonesArray *array,const ed
   // Get generator event information
 
   edm::Handle<GenEventInfoProduct> hGenEvtInfoProduct;
-  iEvent.getByLabel(fGenEvtInfoName,hGenEvtInfoProduct);
+  iEvent.getByToken(fGenEvtInfoName_token,hGenEvtInfoProduct);
   assert(hGenEvtInfoProduct.isValid());
   
   edm::Handle<LHEEventProduct> hLHEEventProduct;
-  iEvent.getByLabel(fLHEEventName,hLHEEventProduct);
+  iEvent.getByToken(fLHEEventName_token,hLHEEventProduct);
   assert(hLHEEventProduct.isValid());
   genEvtInfo->lheweight.clear();
   for(int i = 1; i<=111; i++)
@@ -58,7 +62,7 @@ void FillerGenInfo::fill(TGenEventInfo *genEvtInfo, TClonesArray *array,const ed
   
   // Get generator particles collection
   edm::Handle<reco::GenParticleCollection> hGenParProduct;
-  iEvent.getByLabel(fGenParName,hGenParProduct);
+  iEvent.getByToken(fGenParName_token,hGenParProduct);
   assert(hGenParProduct.isValid());  
   const reco::GenParticleCollection genParticles = *(hGenParProduct.product()); 
 
@@ -76,7 +80,7 @@ void FillerGenInfo::fill(TGenEventInfo *genEvtInfo, TClonesArray *array,const ed
       if(itGenP->status()>20 && itGenP->status()<30)           { skip = false; }  // keep particles from hard scatter process
       if(abs(itGenP->pdgId())>= 5 && abs(itGenP->pdgId())<= 8) { skip = false; }  // keep b, t, b', t'
       if(abs(itGenP->pdgId())>=11 && abs(itGenP->pdgId())<=18) { skip = false; }  // keep leptons
-      if(abs(itGenP->pdgId())>=23 && abs(itGenP->pdgId())<=39) { skip = false; }  // keep bosons except photons and gluons
+      if(abs(itGenP->pdgId())>=22 && abs(itGenP->pdgId())<=39) { skip = false; }  // keep bosons except gluons (the photons are there)
       if(abs(itGenP->pdgId())>10000)                           { skip = false; }  // keep exotic particles
 
       ///// FSR/ISR photons?

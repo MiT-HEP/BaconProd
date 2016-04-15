@@ -2,6 +2,9 @@
 #define BACONPROD_NTUPLER_FILLERJET_HH
 
 #include "BaconProd/Utils/interface/TriggerTools.hh"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 //#include "BaconProd/Utils/interface/JetPUIDMVACalculator.hh"
 //#include "BaconProd/Utils/interface/SoftDrop.hh"
 //#include "BaconProd/Utils/interface/CMSTopTagger.hh"
@@ -22,6 +25,8 @@
 #include <vector>
 #include <string>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 // forward class declarations
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,7 +43,7 @@ namespace baconhep
   class FillerJet
   {
     public:
-       FillerJet(const edm::ParameterSet &iConfig);		
+    FillerJet(const edm::ParameterSet &iConfig,edm::ConsumesCollector && iC);		
       ~FillerJet();
       
       
@@ -72,13 +77,18 @@ namespace baconhep
       // EDM object collection names
       std::string fPVName;
       std::string fRhoName;
+      edm::EDGetTokenT<double> rhoTag_token;
       std::string fJetName;
+      edm::EDGetTokenT<reco::PFJetCollection> fJetName_token;
       std::string fGenJetName;
       std::string fJetFlavorName;
+    //edm::EDGetTokenT<reco::JetFlavourMatchingCollection> fJetFlavorName_token;
       std::string fJetFlavorPhysName;
+    //edm::EDGetTokenT<reco::JetFlavourMatchingCollection> fJetFlavorPhysName_token;
 //      std::string fPruneJetName;
 //      std::string fSubJetName;
       std::string fCSVbtagName;
+      edm::EDGetTokenT<reco::JetTagCollection> fCSVbtagName_token;
 //      std::string fCSVbtagSubJetName;
 //      std::string fJettinessName;
 //      std::string fQGLikelihood;

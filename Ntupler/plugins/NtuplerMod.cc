@@ -77,6 +77,10 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
   fPhotonArr         (0),
   fPVArr             (0)
 {
+  fHLTTag_token = consumes<edm::TriggerResults>(fHLTTag);
+  fHLTObjTag_token = consumes<trigger::TriggerEvent>(fHLTObjTag);
+  fPFCandName_token = consumes<reco::PFCandidateCollection>(fPFCandName);
+  fPVName_token = consumes<reco::VertexCollection>(fPVName);
   // Don't write TObject part of the objects
   baconhep::TEventInfo::Class()->IgnoreTObjectStreamer();
   baconhep::TGenEventInfo::Class()->IgnoreTObjectStreamer();
@@ -96,7 +100,7 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
 
     if(fIsActiveEvtInfo) {
       fEvtInfo       = new baconhep::TEventInfo();            assert(fEvtInfo);
-      fFillerEvtInfo = new baconhep::FillerEventInfo(cfg);    assert(fFillerEvtInfo);
+      fFillerEvtInfo = new baconhep::FillerEventInfo(cfg,consumesCollector());    assert(fFillerEvtInfo);
     }
   }
 
@@ -106,7 +110,7 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
     if(fIsActiveGenInfo) {
       fGenEvtInfo    = new baconhep::TGenEventInfo();                   assert(fGenEvtInfo);
       fGenParArr     = new TClonesArray("baconhep::TGenParticle",5000); assert(fGenParArr);
-      fFillerGenInfo = new baconhep::FillerGenInfo(cfg);                assert(fFillerGenInfo);
+      fFillerGenInfo = new baconhep::FillerGenInfo(cfg,consumesCollector());                assert(fFillerGenInfo);
     }
   }
 
@@ -126,7 +130,7 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
     fIsActiveEle = cfg.getUntrackedParameter<bool>("isActive");
     if(fIsActiveEle) {
       fEleArr    = new TClonesArray("baconhep::TElectron"); assert(fEleArr);
-      fFillerEle = new baconhep::FillerElectron(cfg);       assert(fFillerEle);
+      fFillerEle = new baconhep::FillerElectron(cfg,consumesCollector());       assert(fFillerEle);
     }
   }  
 
@@ -135,7 +139,7 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
     fIsActiveMuon = cfg.getUntrackedParameter<bool>("isActive");
     if(fIsActiveMuon) {
       fMuonArr    = new TClonesArray("baconhep::TMuon"); assert(fMuonArr);
-      fFillerMuon = new baconhep::FillerMuon(cfg);       assert(fFillerMuon);
+      fFillerMuon = new baconhep::FillerMuon(cfg,consumesCollector());       assert(fFillerMuon);
     }
   }  
 
@@ -154,7 +158,7 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
     if(fIsActiveJet) {
       fFillerJet = new baconhep::FillerJet*[1];
       fJetArr    = new TClonesArray*[1];
-      fFillerJet[0] = new baconhep::FillerJet(cfg);
+      fFillerJet[0] = new baconhep::FillerJet(cfg,consumesCollector());
       assert(fFillerJet[0]);
       fJetArr[0] = new TClonesArray("baconhep::TJet");
       assert(fJetArr[0]);
@@ -247,7 +251,8 @@ void NtuplerMod::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   fTotalEvents->Fill(1);
   
   edm::Handle<edm::TriggerResults> hTrgRes;
-  iEvent.getByLabel(fHLTTag,hTrgRes);
+  //iEvent.getByLabel(fHLTTag,hTrgRes);
+  iEvent.getByToken(fHLTTag_token,hTrgRes);
   assert(hTrgRes.isValid());  
   const edm::TriggerNames &triggerNames = iEvent.triggerNames(*hTrgRes);
   Bool_t config_changed = false;
@@ -286,7 +291,7 @@ void NtuplerMod::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   
   edm::Handle<trigger::TriggerEvent> hTrgEvt;
-  iEvent.getByLabel(fHLTObjTag,hTrgEvt);
+  iEvent.getByToken(fHLTObjTag_token,hTrgEvt);
   
   if(fIsActiveEle) {
     fEleArr->Clear();
@@ -344,13 +349,13 @@ void NtuplerMod::separatePileUp(const edm::Event &iEvent, const reco::Vertex &pv
 
   // Get PF-candidates collection
   edm::Handle<reco::PFCandidateCollection> hPFCandProduct;
-  iEvent.getByLabel(fPFCandName,hPFCandProduct);
+  iEvent.getByToken(fPFCandName_token,hPFCandProduct);
   assert(hPFCandProduct.isValid());
   const reco::PFCandidateCollection *pfCandCol = hPFCandProduct.product();  
   
   // Get vertex collection
   edm::Handle<reco::VertexCollection> hVertexProduct;
-  iEvent.getByLabel(fPVName,hVertexProduct);
+  iEvent.getByToken(fPVName_token,hVertexProduct);
   assert(hVertexProduct.isValid());
   const reco::VertexCollection *pvCol = hVertexProduct.product();
   

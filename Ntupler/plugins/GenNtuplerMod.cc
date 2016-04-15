@@ -52,7 +52,7 @@ GenNtuplerMod::GenNtuplerMod(const edm::ParameterSet &iConfig):
       fGenEvtInfo    = new baconhep::TGenEventInfo();                   assert(fGenEvtInfo);
       fGenParArr     = new TClonesArray("baconhep::TGenParticle",5000); assert(fGenParArr);
       //fGenJetArr     = new TClonesArray("baconhep::TGenJet",5000); assert(fGenJetArr);
-      fFillerGenInfo = new baconhep::FillerGenInfo(cfg);                assert(fFillerGenInfo);
+      fFillerGenInfo = new baconhep::FillerGenInfo(cfg,consumesCollector());                assert(fFillerGenInfo);
     }
   }
 }

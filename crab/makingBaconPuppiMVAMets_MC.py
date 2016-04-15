@@ -13,7 +13,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('TrackingTools/TransientTrack/TransientTrackBuilder_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.GlobalTag.globaltag = 'MCRUN2_74_V9A::All'
+process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_v5'
 
 #process.load("RecoTauTag/Configuration/RecoPFTauTag_cff")
 
@@ -67,7 +67,7 @@ for line in hlt_file.readlines():
 
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
     process.source = cms.Source("PoolSource",
-                                  fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/50000/0CF36765-E836-E511-9684-0002C90F8088.root'
+                                  fileNames = cms.untracked.vstring('/store/mc/RunIIFall15DR76/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/004FE350-19BD-E511-9F01-00238BBD7672.root'
                                   )
                                 )
     process.source.inputCommands = cms.untracked.vstring("keep *",

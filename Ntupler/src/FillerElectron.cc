@@ -26,7 +26,7 @@
 using namespace baconhep;
 
 //--------------------------------------------------------------------------------------------------
-FillerElectron::FillerElectron(const edm::ParameterSet &iConfig):
+FillerElectron::FillerElectron(const edm::ParameterSet &iConfig,edm::ConsumesCollector && iC):
   fMinPt       (iConfig.getUntrackedParameter<double>("minPt",7)),
   fEleName     (iConfig.getUntrackedParameter<std::string>("edmName","gedGsfElectrons")),
   fPFCandName  (iConfig.getUntrackedParameter<std::string>("edmPFCandName","particleFlow")),
@@ -35,6 +35,12 @@ FillerElectron::FillerElectron(const edm::ParameterSet &iConfig):
   fConvName    (iConfig.getUntrackedParameter<std::string>("edmConversionName","allConversions")),
   fSCName      (iConfig.getUntrackedParameter<std::string>("edmSCName","particleFlowEGamma"))
 {
+  fEleName_token = iC.consumes<reco::GsfElectronCollection>(fEleName);
+  fPFCandName_token = iC.consumes<reco::PFCandidateCollection>(fPFCandName);
+  fTrackName_token = iC.consumes<reco::TrackCollection>(fTrackName);
+  fBeamspotName_token = iC.consumes<reco::BeamSpot>(fBeamspotName);
+  fConvName_token = iC.consumes<reco::ConversionCollection>(fConvName);
+  fSCName_token = iC.consumes<reco::SuperClusterCollection>(fSCName);
   std::string cmssw_base_src = getenv("CMSSW_BASE");
   cmssw_base_src += "/src/";
 }
@@ -53,34 +59,34 @@ void FillerElectron::fill(TClonesArray *array,
   
   // Get electron collection
   edm::Handle<reco::GsfElectronCollection> hEleProduct;
-  iEvent.getByLabel(fEleName,hEleProduct);
+  iEvent.getByToken(fEleName_token,hEleProduct);
   assert(hEleProduct.isValid());
   const reco::GsfElectronCollection *eleCol = hEleProduct.product();
 
   // Get PF-candidates collection
   edm::Handle<reco::PFCandidateCollection> hPFCandProduct;
-  iEvent.getByLabel(fPFCandName,hPFCandProduct);
+  iEvent.getByToken(fPFCandName_token,hPFCandProduct);
   assert(hPFCandProduct.isValid());
   const reco::PFCandidateCollection *pfCandCol = hPFCandProduct.product();
   
   // Get track collection
   edm::Handle<reco::TrackCollection> hTrackProduct;
-  iEvent.getByLabel(fTrackName,hTrackProduct);
+  iEvent.getByToken(fTrackName_token,hTrackProduct);
   assert(hTrackProduct.isValid());
   const reco::TrackCollection *trackCol = hTrackProduct.product();
   
   // Get beam spot
   edm::Handle<reco::BeamSpot> theBeamSpot;
-  iEvent.getByLabel(fBeamspotName,theBeamSpot);
+  iEvent.getByToken(fBeamspotName_token,theBeamSpot);
  
   // Get conversions collection
   edm::Handle<reco::ConversionCollection> hConvProduct;
-  iEvent.getByLabel(fConvName,hConvProduct);
+  iEvent.getByToken(fConvName_token,hConvProduct);
   assert(hConvProduct.isValid());
 
   // Get SuperCluster collection
   edm::Handle<reco::SuperClusterCollection> hSCProduct;
-  iEvent.getByLabel(fSCName,hSCProduct);
+  iEvent.getByToken(fSCName_token,hSCProduct);
   assert(hSCProduct.isValid());
   const reco::SuperClusterCollection *scCol = hSCProduct.product();
 

@@ -5,6 +5,10 @@
 #include <vector>
 #include <string>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 // forward class declarations
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +26,7 @@ namespace baconhep
   class FillerElectron
   {
     public:
-      FillerElectron(const edm::ParameterSet &iConfig);
+    FillerElectron(const edm::ParameterSet &iConfig,edm::ConsumesCollector && iC);
       ~FillerElectron();
       
       void fill(TClonesArray                                *array,           // output array to be filled
@@ -41,11 +45,17 @@ namespace baconhep
       
       // EDM object collection names
       std::string fEleName;
+      edm::EDGetTokenT<reco::GsfElectronCollection> fEleName_token;
       std::string fPFCandName;
+      edm::EDGetTokenT<reco::PFCandidateCollection> fPFCandName_token;
       std::string fTrackName;
+      edm::EDGetTokenT<reco::TrackCollection> fTrackName_token;
       std::string fBeamspotName;
+      edm::EDGetTokenT<reco::BeamSpot> fBeamspotName_token;
       std::string fConvName;
+      edm::EDGetTokenT<reco::ConversionCollection> fConvName_token;
       std::string fSCName;
+      edm::EDGetTokenT<reco::SuperClusterCollection> fSCName_token;
   };
 }
 #endif

@@ -5,6 +5,11 @@
 #include <vector>
 #include <string>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 // forward class declarations
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +27,7 @@ namespace baconhep
   class FillerMuon
   {
     public:
-      FillerMuon(const edm::ParameterSet &iConfig);
+    FillerMuon(const edm::ParameterSet &iConfig,edm::ConsumesCollector && iC);
       ~FillerMuon();
       
       void fill(TClonesArray			 *array,	   // output array to be filled
@@ -38,8 +43,11 @@ namespace baconhep
       
       // EDM object collection names
       std::string fMuonName;
+      edm::EDGetTokenT<reco::MuonCollection> fMuonName_token;
       std::string fPFCandName;
+      edm::EDGetTokenT<reco::PFCandidateCollection> fPFCandName_token;
       std::string fTrackName;
+      edm::EDGetTokenT<reco::TrackCollection> fTrackName_token;
 
       // general tracks cuts
       bool   fSaveTracks;
