@@ -14,11 +14,11 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('TrackingTools/TransientTrack/TransientTrackBuilder_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.GlobalTag.globaltag = 'START53_V7G::ALL'
+process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_v5'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(sys.argv[2])
+                            fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/k/kelong/work/public/Drell-Yan_13TeV_powheg-herwig/EXO-RunIISummer15GS-07038.root")
 )
 process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop *_MEtoEDMConverter_*_*")
@@ -53,7 +53,7 @@ src = cms.InputTag("genParticles")
 
 process.ntupler = cms.EDAnalyzer('GenNtuplerMod',
   skipOnHLTFail = cms.untracked.bool(False),
-  outputName    = cms.untracked.string(sys.argv[3]),
+  outputName    = cms.untracked.string("Output.root"),
   TriggerFile   = cms.untracked.string("tt"),
   edmPVName     = cms.untracked.string('offlinePrimaryVertices'),
   edmPFCandName = cms.untracked.string('particleFlow'),

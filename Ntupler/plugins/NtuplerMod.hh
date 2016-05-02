@@ -30,6 +30,7 @@ namespace baconhep {
   class FillerElectron;
   class FillerMuon;
   class FillerPhoton;
+  class FillerPF;
   class FillerJet;
 }
 
@@ -90,6 +91,7 @@ class NtuplerMod : public edm::EDAnalyzer {
     baconhep::FillerElectron  *fFillerEle;
     baconhep::FillerMuon      *fFillerMuon;
     baconhep::FillerPhoton    *fFillerPhoton;
+    baconhep::FillerPF        *fFillerPF;    
     baconhep::FillerJet       **fFillerJet;
     
     baconhep::TTrigger        *fTrigger;
@@ -101,6 +103,7 @@ class NtuplerMod : public edm::EDAnalyzer {
     bool fIsActiveMuon;
     bool fIsActivePhoton;
     bool fIsActiveJet;
+    bool fIsActivePF;
     
     // Objects and arrays for output file
     std::string              fOutputName;
@@ -115,4 +118,5 @@ class NtuplerMod : public edm::EDAnalyzer {
     TClonesArray	    **fJetArr;
     TClonesArray	    *fPhotonArr;
     TClonesArray	    *fPVArr;
+    TClonesArray	    *fPFParArr;
 };

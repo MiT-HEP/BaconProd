@@ -19,6 +19,7 @@
 #include "BaconProd/Ntupler/interface/FillerElectron.hh"
 #include "BaconProd/Ntupler/interface/FillerPhoton.hh"
 #include "BaconProd/Ntupler/interface/FillerJet.hh"
+#include "BaconProd/Ntupler/interface/FillerPF.hh"
 
 // tools to parse HLT name patterns
 #include <boost/foreach.hpp>
@@ -57,6 +58,7 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
   fFillerEle         (0),
   fFillerMuon        (0),
   fFillerPhoton      (0),
+  fFillerPF          (0),
   fTrigger           (0),
   fIsActiveEvtInfo   (false),
   fIsActiveGenInfo   (false),
@@ -64,6 +66,7 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
   fIsActiveEle       (false),
   fIsActiveMuon      (false),
   fIsActivePhoton    (false),
+  fIsActivePF        (false),
   fOutputName        (iConfig.getUntrackedParameter<std::string>("outputName", "ntuple.root")),
   fOutputFile        (0),
   fTotalEvents       (0),
@@ -75,7 +78,8 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
   fMuonArr           (0),
   fJetArr            (0),
   fPhotonArr         (0),
-  fPVArr             (0)
+  fPVArr             (0),
+  fPFParArr          (0)
 {
   fHLTTag_token = consumes<edm::TriggerResults>(fHLTTag);
   fHLTObjTag_token = consumes<trigger::TriggerEvent>(fHLTObjTag);
@@ -151,6 +155,14 @@ NtuplerMod::NtuplerMod(const edm::ParameterSet &iConfig):
       fFillerPhoton = new baconhep::FillerPhoton(cfg);       assert(fFillerPhoton);
     }
   } 
+  if(iConfig.existsAs<edm::ParameterSet>("PFCand",false)) {
+    edm::ParameterSet cfg(iConfig.getUntrackedParameter<edm::ParameterSet>("PFCand"));
+    fIsActivePF = cfg.getUntrackedParameter<bool>("isActive");
+    if(fIsActivePF) {
+      fPFParArr = new TClonesArray("baconhep::TPFPart",5000); assert(fPFParArr);
+      fFillerPF = new baconhep::FillerPF(cfg,consumesCollector());                assert(fFillerPF);
+    }
+  } 
   if(iConfig.existsAs<edm::ParameterSet>("Jet",false)) {
     edm::ParameterSet cfg(iConfig.getUntrackedParameter<edm::ParameterSet>("Jet"));
     fIsActiveJet = cfg.getUntrackedParameter<bool>("isActive");
@@ -184,6 +196,7 @@ NtuplerMod::~NtuplerMod()
   delete fMuonArr;
   delete fPhotonArr;
   delete fPVArr;
+  delete fPFParArr;
   
   if(fIsActiveJet) {
     delete fFillerJet[0];
@@ -218,7 +231,7 @@ void NtuplerMod::beginJob()
   if(fIsActiveJet) {
     fEventTree->Branch("AK4CHS", &fJetArr[0]);
   }
-  
+  if(fIsActivePF) { fEventTree->Branch("PFPart", &fPFParArr); }
   //
   // Triggers
   //
@@ -306,6 +319,10 @@ void NtuplerMod::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if(fIsActivePhoton) {
     fPhotonArr->Clear();  
     fFillerPhoton->fill(fPhotonArr, iEvent, iSetup, *pv, fTrigger->fRecords, *hTrgEvt);
+  }
+  if(fIsActivePF) { 
+    fPFParArr->Clear();
+    fFillerPF->fill(fPFParArr,fPVArr,iEvent); 
   }
   if(fIsActiveJet) {
     fJetArr[0]->Clear();
