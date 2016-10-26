@@ -40,7 +40,7 @@ pfJetMETcorrPuppi = corrPfMetType1.clone(
     jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector',
     offsetCorrLabel = 'ak4PuppiL1FastjetCorrector',
     jetCorrLabelRes = 'ak4PuppiL1FastL2L3ResidualCorrector',
-    type1JetPtThreshold = cms.double(20)
+    #type1JetPtThreshold = cms.double(20)
     )
 
 pfType1PuppiCorrectedMet = pfMetT1.clone(
