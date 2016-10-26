@@ -13,7 +13,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('TrackingTools/TransientTrack/TransientTrackBuilder_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.GlobalTag.globaltag = '76X_dataRun2_v15'
+process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
 
 #process.load("RecoTauTag/Configuration/RecoPFTauTag_cff")
 
@@ -53,11 +53,26 @@ process.puppinolep.candName = 'pfCandNoLep'
 process.puppimetinput = cms.EDProducer("CandViewMerger",
                                        src = cms.VInputTag( "pfCandLep","puppinolep")
                                        )
+
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+my_id_modules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+switchOnVIDPhotonIdProducer(process, DataFormat.AOD)
+for idmod in my_id_modules:
+  setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
+
+process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
+process.puppiPhoton.puppiCandName = 'puppimetinput'
+process.puppiPhoton.candName = 'particleFlow'
+process.puppiPhoton.photonName = 'gedPhotons'
+
+#process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiPhoton'))
+
 # Include the stuff for Puppi MET
 process.pfMetPuppi = pfMet.clone();
-process.pfMetPuppi.src = cms.InputTag('puppimetinput')
+process.pfMetPuppi.src = cms.InputTag('puppiPhoton')
 process.pfMetPuppi.calculateSignificance = False
-process.ak4PFJetsPuppi   = ak4PFJets.clone(src = cms.InputTag("puppimetinput"))
+
+process.ak4PFJetsPuppi   = ak4PFJets.clone(src = cms.InputTag("puppinolep"))
 
 hlt_file = open(cmssw_base + "/src/" + hlt_filename, "r")
 for line in hlt_file.readlines():
@@ -66,9 +81,10 @@ for line in hlt_file.readlines():
     hlt_path = line.split()[0]
     process.hltHighLevel.HLTPaths.extend(cms.untracked.vstring(hlt_path))
     
-    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
+    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
     process.source = cms.Source("PoolSource",
-                                fileNames = cms.untracked.vstring('/store/data/Run2015D/SingleMuon/AOD/16Dec2015-v1/10000/00E41E14-6DA8-E511-A89A-0025905A60C6.root')
+                                fileNames = cms.untracked.vstring('/store/data/Run2015D/SingleElectron/AOD/16Dec2015-v1/20004/BA5A2182-7CA7-E511-B033-003048FFD7D4.root')
+                                #fileNames = cms.untracked.vstring('file:1E70CEEB-68A8-E511-8414-00266CFFC0C0.root')
                                 )
     process.source.inputCommands = cms.untracked.vstring("keep *",
                                                          "drop *_MEtoEDMConverter_*_*")
@@ -124,7 +140,7 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                      
                                  Electron = cms.untracked.PSet(
     isActive                  = cms.untracked.bool(True),
-    minPt                     = cms.untracked.double(10),
+    minPt                     = cms.untracked.double(15),
     edmName                   = cms.untracked.string('gedGsfElectrons'),
     edmPFCandName             = cms.untracked.string('particleFlow'),
     edmTrackName              = cms.untracked.string('generalTracks'),
@@ -135,20 +151,20 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                      
                                  Muon = cms.untracked.PSet(
     isActive      = cms.untracked.bool(True),
-    minPt         = cms.untracked.double(10),
+    minPt         = cms.untracked.double(15),
     edmName       = cms.untracked.string('muons'),
     edmPFCandName = cms.untracked.string('particleFlow'),
         
     # save general tracker tracks in our muon collection (used in tag-and-probe for muons)
     doSaveTracks = cms.untracked.bool(True),
-    minTrackPt   = cms.untracked.double(10),
+    minTrackPt   = cms.untracked.double(15),
     edmTrackName = cms.untracked.string('generalTracks')
     
     ),
                                      
                                  Photon = cms.untracked.PSet(
     isActive               = cms.untracked.bool(True),
-    minPt                  = cms.untracked.double(10),
+    minPt                  = cms.untracked.double(15),
     edmName                = cms.untracked.string('gedPhotons'),
     edmPFCandName          = cms.untracked.string('particleFlow'),
     edmElectronName        = cms.untracked.string('gedGsfElectrons'),
@@ -171,7 +187,7 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                      
                                  Jet = cms.untracked.PSet(
     isActive             = cms.untracked.bool(True),
-    minPt                = cms.untracked.double(20),
+    minPt                = cms.untracked.double(27),
     #    doComputeFullJetInfo = cms.untracked.bool(True),
     #    doGenJet             = ( cms.untracked.bool(False) if is_data_flag else cms.untracked.bool(True) ),
     #    
@@ -212,14 +228,14 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
     #    jettiness          = cms.untracked.string('Njettiness'),
     #    qgLikelihood       = cms.untracked.string('QGTagger'),
     #    qgLikelihoodSubjet = cms.untracked.string('QGTaggerSubJets')
-    )#,
+    ),
                                      
-                                 #  PFCand = cms.untracked.PSet(
-                                 #    isActive       = cms.untracked.bool(False),
-                                 #    edmName        = cms.untracked.string('particleFlow'),
-                                 #    edmPVName      = cms.untracked.string('offlinePrimaryVertices'),
-                                 #    doAddDepthTime = cms.untracked.bool(False)
-                                 #  )
+                                   PFCand = cms.untracked.PSet(
+                                     isActive       = cms.untracked.bool(False),
+                                     edmName        = cms.untracked.string('particleFlow'),
+                                     edmPVName      = cms.untracked.string('offlinePrimaryVertices'),
+                                     doAddDepthTime = cms.untracked.bool(False)
+                                   )
                                  )
 
 process.baconSequence = cms.Sequence(#process.PFBRECO*
@@ -229,7 +245,9 @@ process.baconSequence = cms.Sequence(#process.PFBRECO*
   process.pfCandNoLep*
   process.pfCandLep*
   process.puppinolep*
+  process.egmPhotonIDSequence*
   process.puppimetinput*
+  process.puppiPhoton*
   process.pfMetPuppi* #  Puppi Met
   process.ak4PFJetsPuppi* 
   process.ak4PuppiL1FastL2L3ResidualChain*

@@ -13,7 +13,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('TrackingTools/TransientTrack/TransientTrackBuilder_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_v5'
+process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1'
 
 #process.load("RecoTauTag/Configuration/RecoPFTauTag_cff")
 
@@ -50,13 +50,24 @@ process.puppinolep.candName = 'pfCandNoLep'
 process.puppimetinput = cms.EDProducer("CandViewMerger",
                                        src = cms.VInputTag( "pfCandLep","puppinolep")
                                        )
+
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+my_id_modules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+switchOnVIDPhotonIdProducer(process, DataFormat.AOD)
+for idmod in my_id_modules:
+  setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
+
+process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
+process.puppiPhoton.puppiCandName = 'puppimetinput'
+process.puppiPhoton.candName = 'particleFlow'
+process.puppiPhoton.photonName = 'gedPhotons'
+
 # Include the stuff for Puppi MET
 process.pfMetPuppi = pfMet.clone();
-process.pfMetPuppi.src = cms.InputTag('puppimetinput')
+process.pfMetPuppi.src = cms.InputTag('puppiPhoton')
 process.pfMetPuppi.calculateSignificance = False
-process.puppi30 = process.puppi.clone()
-process.puppi30.candName = 'packedPFCandidates30'
-process.ak4PFJetsPuppi   = ak4PFJets.clone(src = cms.InputTag("puppimetinput"))
+
+process.ak4PFJetsPuppi   = ak4PFJets.clone(src = cms.InputTag("puppinolep"))
 
 hlt_file = open(cmssw_base + "/src/" + hlt_filename, "r")
 for line in hlt_file.readlines():
@@ -68,6 +79,7 @@ for line in hlt_file.readlines():
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
     process.source = cms.Source("PoolSource",
                                   fileNames = cms.untracked.vstring('/store/mc/RunIIFall15DR76/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/004FE350-19BD-E511-9F01-00238BBD7672.root'
+                                  #fileNames = cms.untracked.vstring('/store/user/arapyan/mc/VBFHpmToWlnuZll_M800_13TeV-madgraph-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12/AODSIM/AOD_96001.root'
                                   )
                                 )
     process.source.inputCommands = cms.untracked.vstring("keep *",
@@ -107,6 +119,7 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                  
                                  GenInfo = cms.untracked.PSet(
     isActive            = ( cms.untracked.bool(False) if is_data_flag else cms.untracked.bool(True) ),
+    #isActive            = cms.untracked.bool(False),
     edmGenEventInfoName = cms.untracked.string('generator'),
     edmGenParticlesName = cms.untracked.string('genParticles'),
     fillAllGen          = cms.untracked.bool(False)
@@ -134,19 +147,19 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                  
                                  Muon = cms.untracked.PSet(
     isActive      = cms.untracked.bool(True),
-    minPt         = cms.untracked.double(10),
+    minPt         = cms.untracked.double(15),
     edmName       = cms.untracked.string('muons'),
     edmPFCandName = cms.untracked.string('particleFlow'),
     
     # save general tracker tracks in our muon collection (used in tag-and-probe for muons)
     doSaveTracks = cms.untracked.bool(True),
-    minTrackPt   = cms.untracked.double(10),
+    minTrackPt   = cms.untracked.double(15),
     edmTrackName = cms.untracked.string('generalTracks')    
     ),
                                      
                                  Photon = cms.untracked.PSet(
     isActive               = cms.untracked.bool(True),
-    minPt                  = cms.untracked.double(10),
+    minPt                  = cms.untracked.double(15),
     edmName                = cms.untracked.string('gedPhotons'),
     edmPFCandName          = cms.untracked.string('particleFlow'),
     edmElectronName        = cms.untracked.string('gedGsfElectrons'),
@@ -168,7 +181,7 @@ process.ntupler = cms.EDAnalyzer('NtuplerMod',
                                  #  ),
                                  Jet = cms.untracked.PSet(
         isActive             = cms.untracked.bool(True),
-        minPt                = cms.untracked.double(20),
+        minPt                = cms.untracked.double(27),
         #    doComputeFullJetInfo = cms.untracked.bool(True),
         #    doGenJet             = ( cms.untracked.bool(False) if is_data_flag else cms.untracked.bool(True) ),
         #    
@@ -226,7 +239,9 @@ process.baconSequence = cms.Sequence(#process.PFBRECO*
   process.pfCandNoLep*
   process.pfCandLep*
   process.puppinolep*
+  process.egmPhotonIDSequence*
   process.puppimetinput*
+  process.puppiPhoton*
   process.pfMetPuppi* #  Puppi Met
   process.ak4PFJetsPuppi* 
   process.ak4PuppiL1FastL2L3Chain*
