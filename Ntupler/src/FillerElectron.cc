@@ -188,7 +188,7 @@ void FillerElectron::fill(TClonesArray *array,
     pElectron->isConv = ConversionTools::hasMatchedConversion(*itEle, hConvProduct, theBeamSpot->position());
     
     if(gsfTrack.isNonnull()) {
-      pElectron->nMissingHits = gsfTrack->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+      pElectron->nMissingHits = gsfTrack->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS);
     }
 
     pElectron->typeBits=0;

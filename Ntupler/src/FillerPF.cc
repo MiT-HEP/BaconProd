@@ -171,7 +171,7 @@ float FillerPF::depthDeltaR(const reco::PFCandidate *iPF,const reco::PFRecHitCol
    //Get Calo Depth of PF Clusters in a cylinder using deltar R
   float lEta     = iPF->positionAtECALEntrance().eta();
   float lPhi     = iPF->positionAtECALEntrance().phi();
-  float lRhoE    = iPF->positionAtECALEntrance().rho();
+  //float lRhoE    = iPF->positionAtECALEntrance().rho();
   float lTotRho  = 0; 
   float lTotE    = 0;
   for(unsigned int i0 = 0; i0 < iPFCol.size(); i0++) { 
@@ -180,7 +180,7 @@ float FillerPF::depthDeltaR(const reco::PFCandidate *iPF,const reco::PFRecHitCol
     float pPhi = iPFCol[i0].position().phi();
     if(reco::deltaR(pEta,pPhi,lEta,lPhi) > iDR) continue;
     //std::cout << " --> " << iPFCol[i0].energy() << " -- " << iPFCol[i0].position().rho() << " -- " << lRhoE << " -- Diff - " << iPFCol[i0].position().rho()-lRhoE << std::endl;
-    lTotRho += (iPFCol[i0].position().rho()-lRhoE)*iPFCol[i0].energy();
+    lTotRho += 1.0;//(iPFCol[i0].position().rho()-lRhoE)*iPFCol[i0].energy();
     lTotE   += iPFCol[i0].energy();
   }
   if(lTotE == 0) return 0;
